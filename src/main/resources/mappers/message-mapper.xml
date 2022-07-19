@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.nowcoder.dao.MessageDao">
+    <sql id="selectFields">
+        id,from_id,to_id,conversation_id,content,status,create_time
+    </sql>
+    <select id="selectMessages" resultType="Message">
+        select <include refid="selectFields"></include> from message
+        where status!=2 and (from_id = #{fromId} and to_id = #{toId}) or (from_id = #{toId} and to_id = #{fromId})
+        order by create_time desc
+        limit #{arg2},#{arg3}
+    </select>
+    <select id="selectNewMessage" resultType="Message">
+        select <include refid="selectFields"></include> from message where
+        status!=2 and ((from_id=#{fromId} and to_id = #{toId}) or (from_id = #{toId} and to_id = #{fromId})) order by create_time desc limit 0,1
+    </select>
+    <select id="selectMessagesCount" resultType="int">
+        select count(id) from message where from_id = #{fromId} and to_id = #{toId} and status = #{status}
+    </select>
+    <select id="selectConversationCount" resultType="int">
+        select  distinct from_id from message where status!=2 and to_id = #{toId}
+        order by create_time desc limit #{offset},#{limit}
+    </select>
+    <select id="selectRows" resultType="Integer">
+        select count(id) from message where status!=2
+        and ((from_id=#{fromId} and to_id = #{toId}) or (from_id = #{toId} and to_id = #{fromId}))
+    </select>
+    <sql id="insertFields">
+        from_id,to_id,conversation_id,content,status,create_time
+    </sql>
+    <insert id="insertMessage" parameterType="Message" keyProperty="id">
+        insert into message(<include refid="insertFields"/>) values(#{fromId},#{toId},#{conversationId},#{content},#{status},#{createTime})
+    </insert>
+    <update id="updateMessages">
+        update message set  status = #{status} where from_id = #{fromId} and to_id = #{toId} and id = #{messageId}
+    </update>
+</mapper>

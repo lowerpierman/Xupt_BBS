@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xupt.nowcoder.dao.UserDao">
+    <sql id="selectFields">
+        id, username, password, salt, email, type, status, activation_code, header_url, create_time
+    </sql>
+    <sql id="insertFields">
+        username, password, salt, email, type, status, activation_code, header_url, create_time
+    </sql>
+    <select id="selectById" resultType="User">select <include refid="selectFields"/> from user where id= #{id}</select>
+    <select id="selectByName" resultType="User">select <include refid="selectFields"/> from user where username= #{username}</select>
+    <select id="selectByEmail" resultType="User">select <include refid="selectFields"/> from user where email= #{email}</select>
+    <select id="selectByActivation" resultType="String">select username from user where activation_code = #{activationCode}</select>
+    <!-- keyProperty说明该属性为自增属性，Mybatis从数据库获取然后回填的 -->
+    <insert id="insertUser" parameterType="User" keyProperty="id">
+        insert into user (<include refid="insertFields"></include>)
+        values(#{username}, #{password}, #{salt}, #{email}, #{type}, #{status}, #{activationCode}, #{headerUrl}, #{createTime})</insert>
+    <update id="updateStatus">
+        update user set status = #{arg1} where id = #{arg0}
+        <!-- 两种方法解决找不到参数问题
+            1.在Mapper方法中 使用@Param("id) 注解
+            2.直接使用argX来表示参数 -->
+    </update>
+    <update id="updateHeader">
+        update user set header_url = #{arg1} where id = #{arg0}
+    </update>
+    <update id="updatePassword">
+        update user set password = #{arg1} where id = #{arg0}
+    </update>
+
+</mapper>
